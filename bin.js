@@ -1,9 +1,14 @@
 #!/usr/bin/env node
 
+const hjson = require('hjson')
+const proxyquire = require('proxyquire').noCallThru()
+
 const [,, entry, ...args] = process.argv
 
-const tasks = require(entry)
-const hjson = require('hjson')
+const tasks = proxyquire(
+	entry,
+	{ epoxy: require('./index.js') }
+)
 
 const parsedArgs = args.map(
 	arg => {
