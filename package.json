@@ -1,0 +1,18 @@
+{
+  "name": "@quarterto/epoxy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@quarterto/pattern": "^1.1.0",
+    "@quarterto/run-if-new": "^1.1.0",
+    "@quarterto/sh": "^1.8.0",
+    "hjson": "^3.1.2"
+  }
+}
