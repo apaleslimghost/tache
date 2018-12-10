@@ -2,12 +2,13 @@
 
 const hjson = require('hjson')
 const proxyquire = require('proxyquire').noCallThru()
+const { name: packageName } = require('./package.json')
 
 const [,, entry, ...args] = process.argv
 
 const tasks = proxyquire(
 	entry,
-	{ epoxy: require('./index.js') }
+	{ [packageName]: require('./index.js') }
 )
 
 const parsedArgs = args.map(
@@ -18,7 +19,7 @@ const parsedArgs = args.map(
 )
 
 parsedArgs.reduce(
-	(last, {task, options}) => last.then(() => {
+	(last, { task, options }) => last.then(() => {
 		if(task in tasks) {
 			return tasks[task](options)
 		}
