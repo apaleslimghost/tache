@@ -13,3 +13,7 @@ exports.deploy = pattern `src/%.ts` `lib/%.js` (sh`
 echo from ${from => from}
 echo to ${(_, to) => to}
 `)
+
+exports.error = () => {
+	throw new Error('lol')
+}

@@ -22,11 +22,19 @@ const parsedArgs = args.map(
 const wrapTask = (name, task) => async (...args) => {
 	try {
 		log.command(name)
-		return await task(...args)
-	} catch(e) {
-		log.error(e.message)
-	} finally {
+		const result = await task(...args)
 		log.done(name)
+		return result
+	} catch(e) {
+		log.error(e.toString())
+		log.errorLine(
+			e.stack
+				.replace(e.toString() + '\n', '')
+				.split('\n')
+				.map(line => line.trim())
+				.join('\n')
+		)
+		throw e
 	}
 }
 
@@ -45,7 +53,6 @@ parsedArgs.reduce(
 	Promise.resolve()
 ).catch(
 	error => {
-		console.error(error.message)
-		process.exit(error.status || 1)
+		process.exitCode = error.status || 1;
 	}
 )
