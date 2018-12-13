@@ -1,13 +1,14 @@
 #!/usr/bin/env node bin.js
 
-const { pattern, sh, log } = require('@quarterto/epoxy')
+const { pattern, sh, log, runIfNew } = require('@quarterto/epoxy')
 const util = require('util')
 
-exports.foo = hmm => log.log(`foo ${hmm}`)
+exports.foo = hmm => log.log(`foo ${util.inspect(hmm)}`)
 
-exports.typescript = pattern `src/%.ts` `lib/%.js` (async (from, to) => {
+exports.typescript = pattern `src/%.ts` `lib/%.js` (runIfNew(async (from, to) => {
+	log.log(util.inspect({from, to}))
 	return to
-})
+}))
 
 exports.deploy = sh`
 echo deploy
@@ -26,3 +27,5 @@ exports.default = async () => {
 	await exports.deploy()
 	await exports.foo('lol')
 }
+
+exports.slow = delay => new Promise(r => setTimeout(r, delay))

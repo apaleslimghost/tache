@@ -5,6 +5,7 @@ const proxyquire = require('proxyquire').noCallThru()
 const { name: packageName, main: packageMain } = require('./package.json')
 const log = require('./logger')
 const chalk = require('chalk')
+const util = require('util')
 const {default: ErrorSubclass} = require('error-subclass')
 
 class EpoxyError extends ErrorSubclass {
@@ -30,17 +31,18 @@ let parsedArgs = args.map(
 )
 
 if(parsedArgs.length === 0) {
-	parsedArgs = [{task: 'default', options: {}}]
+	parsedArgs = [{task: 'default', options: ''}]
 }
 
 const wrapTask = (name, task) => async (...args) => {
 	try {
 		const start = Date.now()
-		log.command(name)
+		console.log()
+		log.command(`${name}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
 		const result = await task(...args)
 
 		const took = Date.now() - start
-		log.done(`${name} (${chalk.yellow.italic(`${took}ms`)})`)
+		log.done(`${name}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
 		return result
 	} catch(error) {
 		log.failed(name)
@@ -56,8 +58,6 @@ const formatTask = t => chalk.cyan.italic(t)
 
 parsedArgs.reduce(
 	(last, { task, options }) => last.then(() => {
-		console.log()
-
 		if(task in tasks) {
 			return tasks[task](options)
 		}
@@ -82,9 +82,11 @@ parsedArgs.reduce(
 			if(error.info) log.errorLine(error.info)
 		} else {
 			log.error(error.toString())
-			log.errorLine(
-				error.stack.replace(error.toString() + '\n', '')
-			)
+			if(error.stack && error.stack !== error.toString()) {
+				log.errorLine(
+					error.stack.replace(error.toString() + '\n', '')
+				)
+			}
 		}
 
 		process.exitCode = error.status || 1;
