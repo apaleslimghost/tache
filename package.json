@@ -14,6 +14,8 @@
     "@quarterto/run-if-new": "^1.1.0",
     "@quarterto/sh": "^1.8.0",
     "@quarterto/symbol-logger": "^1.16.0",
+    "chalk": "^2.4.1",
+    "error-subclass": "^2.2.0",
     "glob": "^7.1.3",
     "glob-promise": "^3.4.0",
     "hjson": "^3.1.2",

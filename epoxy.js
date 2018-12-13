@@ -3,17 +3,26 @@
 const { pattern, sh, log } = require('@quarterto/epoxy')
 const util = require('util')
 
-exports.foo = hmm => console.log('foo', hmm)
+exports.foo = hmm => log.log(`foo ${hmm}`)
 
-exports.typescript =  ((from, to) => {
-	log.log(util.inspect({ from, to }))
+exports.typescript = pattern `src/%.ts` `lib/%.js` (async (from, to) => {
+	return to
 })
 
-exports.deploy = pattern `src/%.ts` `lib/%.js` (sh`
-echo from ${from => from}
-echo to ${(_, to) => to}
-`)
+exports.deploy = sh`
+echo deploy
+`
 
 exports.error = () => {
 	throw new Error('lol')
+}
+
+exports.dep = async () => {
+	log.log(await exports.typescript('src/%.ts'))
+	await exports.error()
+}
+
+exports.default = async () => {
+	await exports.deploy()
+	await exports.foo('lol')
 }
