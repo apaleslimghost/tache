@@ -3,8 +3,9 @@
 const hjson = require('hjson')
 const proxyquire = require('proxyquire').noCallThru()
 const { name: packageName, main: packageMain } = require('./package.json')
+const log = require('./logger')
 
-const [,, entry, ...args] = process.argv
+const [entry, ...args] = process.argv.slice(2)
 
 const tasks = proxyquire(
 	entry,
@@ -17,6 +18,21 @@ const parsedArgs = args.map(
 		return { task, options: hjson.parse(rest.join(':')) }
 	}
 )
+
+const wrapTask = (name, task) => async (...args) => {
+	try {
+		log.command(name)
+		return await task(...args)
+	} catch(e) {
+		log.error(e.message)
+	} finally {
+		log.done(name)
+	}
+}
+
+Object.keys(tasks).forEach(name => {
+	tasks[name] = wrapTask(name, tasks[name])
+})
 
 parsedArgs.reduce(
 	(last, { task, options }) => last.then(() => {
