@@ -5,10 +5,13 @@ const util = require('util')
 
 exports.foo = hmm => log.log(`foo ${util.inspect(hmm)}`)
 
-exports.typescript = pattern `src/%.ts` `lib/%.js` (runIfNew(async (from, to) => {
-	log.log(util.inspect({from, to}))
-	return to
-}))
+const typescriptPattern = pattern(`src/%.ts`, `lib/%.js`)
+
+exports.typescript = (srcFile) => {
+	const libFile = typescriptPattern(srcFile)
+	log.log(util.inspect({libFile, srcFile}))
+	return libFile
+}
 
 exports.deploy = sh`
 echo deploy
