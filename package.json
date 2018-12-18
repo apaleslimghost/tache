@@ -10,9 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@quarterto/is-source-newer": "^1.6.0",
     "@quarterto/npr": "^1.1.0",
     "@quarterto/pattern": "^2.2.0",
-    "@quarterto/run-if-new": "^1.2.0",
     "@quarterto/sh": "^1.8.0",
     "@quarterto/symbol-logger": "^1.17.0",
     "chalk": "^2.4.1",

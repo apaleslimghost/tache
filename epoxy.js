@@ -1,16 +1,25 @@
 #!/usr/bin/env node bin.js
 
-const { pattern, sh, log, runIfNew } = require('@quarterto/epoxy')
+const { pattern, sh, log, isSourceNewer } = require('@quarterto/epoxy')
 const util = require('util')
 
 exports.foo = hmm => log.log(`foo ${util.inspect(hmm)}`)
 
 const typescriptPattern = pattern(`src/%.ts`, `lib/%.js`)
+const imaginaryTypescriptCompiler = () => {}
 
-exports.typescript = (srcFile) => {
-	const libFile = typescriptPattern(srcFile)
-	log.log(util.inspect({libFile, srcFile}))
-	return libFile
+exports.typescript = async source => {
+	const target = typescriptPattern(source)
+
+	if(await isSourceNewer({
+		source,
+		target
+	})) {
+		log.log(`remaking ${target} because ${source} is newer`)
+		await imaginaryTypescriptCompiler({ target, source })
+	}
+
+	return target
 }
 
 exports.deploy = sh`
