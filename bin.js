@@ -43,8 +43,9 @@ const wrapTask = (name, task) => async (...args) => {
 		const start = Date.now()
 		log.command(`${formatTask(name)}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
 
-		// actually run the task
-		const result = await task(...args)
+		// actually run the task. if the task itself is a promise, wait for it, because it's a lazy boi
+		const taskFunction = await task
+		const result = await taskFunction(...args)
 
 		const took = Date.now() - start
 		log.done(`${formatTask(name)}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
@@ -85,10 +86,7 @@ parsedArgs.reduce(
 
 		// clear a line for visual separation
 		console.log()
-
-		// support loading tasks themselves asynchronously
-		const taskFunction = await tasks[task]
-		return taskFunction(options)
+		return tasks[task](options)
 	},
 	Promise.resolve()
 ).catch(

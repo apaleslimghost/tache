@@ -42,3 +42,7 @@ exports.default = async () => {
 }
 
 exports.slow = delay => new Promise(r => setTimeout(r, delay))
+
+exports.asyncTask = Promise.resolve(() => {
+	log.log('async task')
+})
