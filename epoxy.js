@@ -31,7 +31,8 @@ exports.error = () => {
 }
 
 exports.dep = async () => {
-	log.log(await exports.typescript('src/%.ts'))
+	await exports.foo('hello')
+	log.log(await exports.typescript('src/bar.ts'))
 	await exports.error()
 }
 

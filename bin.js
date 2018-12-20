@@ -34,18 +34,19 @@ if(parsedArgs.length === 0) {
 	parsedArgs = [{task: 'default', options: ''}]
 }
 
+const formatTask = t => chalk.cyan.italic(t)
+
 const wrapTask = (name, task) => async (...args) => {
 	try {
 		const start = Date.now()
-		console.log()
-		log.command(`${name}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
+		log.command(`${formatTask(name)}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
 		const result = await task(...args)
-
 		const took = Date.now() - start
-		log.done(`${name}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
+		log.done(`${formatTask(name)}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
 		return result
 	} catch(error) {
-		log.failed(name)
+		log.failed(formatTask(name))
+		if(!error.task) error.task = name
 		throw error
 	}
 }
@@ -54,11 +55,10 @@ Object.keys(tasks).forEach(name => {
 	tasks[name] = wrapTask(name, tasks[name])
 })
 
-const formatTask = t => chalk.cyan.italic(t)
-
 parsedArgs.reduce(
 	(last, { task, options }) => last.then(() => {
 		if(task in tasks) {
+			console.log()
 			return tasks[task](options)
 		}
 
@@ -81,7 +81,11 @@ parsedArgs.reduce(
 			log.failed(error.message)
 			if(error.info) log.errorLine(error.info)
 		} else {
-			log.error(error.toString())
+			log.error(
+				error.toString()
+					.replace(':', chalk.grey(` (from task ${formatTask(error.task)})`) + ':')
+			)
+
 			if(error.stack && error.stack !== error.toString()) {
 				log.errorLine(
 					error.stack.replace(error.toString() + '\n', '')
