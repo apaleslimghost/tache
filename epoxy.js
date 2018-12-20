@@ -32,8 +32,8 @@ exports.error = () => {
 
 exports.dep = async () => {
 	await exports.foo('hello')
-	log.log(await exports.typescript('src/bar.ts'))
-	await exports.error()
+	await exports.typescript('src/foo.ts')
+	await exports.deploy()
 }
 
 exports.default = async () => {

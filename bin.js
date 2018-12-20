@@ -8,6 +8,7 @@ const chalk = require('chalk')
 const util = require('util')
 const {default: ErrorSubclass} = require('error-subclass')
 
+// error class for internal, informational exceptions that don't log stack trace
 class EpoxyError extends ErrorSubclass {
 	constructor(message, {status = 1, info} = {}) {
 		super(message)
@@ -18,6 +19,7 @@ class EpoxyError extends ErrorSubclass {
 
 const [entry, ...args] = process.argv.slice(2)
 
+// resolve requires to the epoxy runtime to the same installation as this bin
 const tasks = proxyquire(
 	entry,
 	{ [packageName]: require(packageMain) }
@@ -40,40 +42,54 @@ const wrapTask = (name, task) => async (...args) => {
 	try {
 		const start = Date.now()
 		log.command(`${formatTask(name)}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
+
+		// actually run the task
 		const result = await task(...args)
+
 		const took = Date.now() - start
 		log.done(`${formatTask(name)}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
+
 		return result
 	} catch(error) {
 		log.failed(formatTask(name))
+
+		// save the task this was originally thrown from for logging/debugging purposes
 		if(!error.task) error.task = name
 		throw error
 	}
 }
 
+// wrap exported tasks in logging helpers
 Object.keys(tasks).forEach(name => {
 	tasks[name] = wrapTask(name, tasks[name])
 })
 
 parsedArgs.reduce(
-	(last, { task, options }) => last.then(() => {
-		if(task in tasks) {
-			console.log()
-			return tasks[task](options)
+	async (last, { task, options }) => {
+		// wait for the previous task to run them in sequence
+		await last
+
+		if(!(task in tasks)) {
+			const info = [
+				'',
+				chalk.bold.white('available tasks:'),
+			].concat(
+				Object.keys(tasks).map(formatTask).map(t => `  ${t}`)
+			).join('\n')
+	
+			throw new EpoxyError(`no task ${formatTask(task)}`, {
+				status: 2,
+				info
+			})
 		}
 
-		const info = [
-			'',
-			chalk.bold.white('available tasks:'),
-		].concat(
-			Object.keys(tasks).map(formatTask).map(t => `  ${t}`)
-		).join('\n')
+		// clear a line for visual separation
+		console.log()
 
-		throw new EpoxyError(`no task ${formatTask(task)}`, {
-			status: 2,
-			info
-		})
-	}),
+		// support loading tasks themselves asynchronously
+		const taskFunction = await tasks[task]
+		return taskFunction(options)
+	},
 	Promise.resolve()
 ).catch(
 	error => {
