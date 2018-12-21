@@ -2,7 +2,7 @@
 
 const hjson = require('hjson')
 const proxyquire = require('proxyquire').noCallThru()
-const log = require('./logger')
+const log = require('@tache/logger')
 const chalk = require('chalk')
 const util = require('util')
 const path = require('path')

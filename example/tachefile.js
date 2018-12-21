@@ -1,4 +1,4 @@
-#!/usr/bin/env node ../bin.js
+#!/usr/bin/env node ../packages/cli/bin
 
 const { sh, lazyRequire } = require('@tache/runtime')
 
