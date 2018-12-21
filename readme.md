@@ -1,6 +1,8 @@
-# tache
+<h1 align="center">
+	<img alt="tâche" src="extra/logo.svg" width="300">
+</h1>
 
-javascript task runner & build tool
+<h2 align="center">javascript task runner & build tool</h2>
 
 ## principles
 
