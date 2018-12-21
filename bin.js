@@ -6,6 +6,7 @@ const { name: packageName, main: packageMain } = require('./package.json')
 const log = require('./logger')
 const chalk = require('chalk')
 const util = require('util')
+const path = require('path')
 const {default: ErrorSubclass} = require('error-subclass')
 
 // error class for internal, informational exceptions that don't log stack trace
@@ -21,7 +22,7 @@ const [entry, ...args] = process.argv.slice(2)
 
 // resolve requires to the epoxy runtime to the same installation as this bin
 const tasks = proxyquire(
-	entry,
+	path.resolve(entry),
 	{ [packageName]: require(packageMain) }
 )
 
@@ -38,6 +39,7 @@ if(parsedArgs.length === 0) {
 
 const formatTask = t => chalk.cyan.italic(t)
 
+// wrap all exported task with logging and error handling
 const wrapTask = (name, task) => async (...args) => {
 	try {
 		const start = Date.now()
@@ -64,6 +66,8 @@ const wrapTask = (name, task) => async (...args) => {
 Object.keys(tasks).forEach(name => {
 	tasks[name] = wrapTask(name, tasks[name])
 })
+
+const start = Date.now()
 
 parsedArgs.reduce(
 	async (last, { task, options }) => {
