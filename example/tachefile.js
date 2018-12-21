@@ -1,6 +1,6 @@
 #!/usr/bin/env node ../bin.js
 
-const { sh, lazyRequire } = require('@quarterto/epoxy')
+const { sh, lazyRequire } = require('@tache/runtime')
 
 exports.npmInstall = sh`
 npm install

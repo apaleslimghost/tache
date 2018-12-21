@@ -2,7 +2,6 @@
 
 const hjson = require('hjson')
 const proxyquire = require('proxyquire').noCallThru()
-const { name: packageName, main: packageMain } = require('./package.json')
 const log = require('./logger')
 const chalk = require('chalk')
 const util = require('util')
@@ -23,7 +22,7 @@ const [entry, ...args] = process.argv.slice(2)
 // resolve requires to the epoxy runtime to the same installation as this bin
 const tasks = proxyquire(
 	path.resolve(entry),
-	{ [packageName]: require(packageMain) }
+	{ '@tache/runtime': require('@tache/runtime') }
 )
 
 let parsedArgs = args.map(
