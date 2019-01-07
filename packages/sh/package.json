@@ -1,5 +1,5 @@
 {
-  "name": "@tache/runtime",
+  "name": "@tache/sh",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,10 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@tache/is-source-newer": "../is-source-newer",
-    "@quarterto/npr": "^1.3.0",
-    "@tache/pattern": "../pattern",
-    "@tache/sh": "../sh",
-    "@tache/logger": "file:../logger"
+    "node-pty": "^0.8.0"
   }
 }

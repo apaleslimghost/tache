@@ -1,6 +1,6 @@
-const sh = require('@quarterto/sh')
-const pattern = require('@quarterto/pattern')
-const isSourceNewer = require('@quarterto/is-source-newer')
+const sh = require('@tache/sh')
+const pattern = require('@tache/pattern')
+const isSourceNewer = require('@tache/is-source-newer')
 const log = require('@tache/logger')
 const npr = require('@quarterto/npr')
 
