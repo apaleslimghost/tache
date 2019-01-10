@@ -22,7 +22,7 @@ const [entry, ...args] = process.argv.slice(2)
 // resolve requires to the runtime to the same installation as this bin
 const tasks = proxyquire(
 	path.resolve(entry),
-	{ '@tache/runtime': require('@tache/runtime') }
+	{ 'tache': require('./') }
 )
 
 let parsedArgs = args.map(

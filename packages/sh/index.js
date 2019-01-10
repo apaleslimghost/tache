@@ -1,4 +1,5 @@
 const pty = require('node-pty')
+const log = require('@tache/logger')
 
 const exec = (cmd, { log, shell, shellArgs, env }) => new Promise((resolve, reject) => {
 	log.command(cmd)
@@ -64,14 +65,7 @@ const stringToCommands = (strings, vars, args) => strings.reduce(
 ).filter(a => a)
 
 const defaultOptions = {
-	log: {
-		command: () => {},
-		done:    () => {},
-		stdout:  console.log,
-		stderr:  console.error,
-		error:   console.error
-	},
-	
+	log,
 	shell: '/bin/sh',
 	shellArgs: cmd => ['-c', cmd],
 	env: process.env

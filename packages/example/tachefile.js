@@ -1,17 +1,17 @@
 #!/usr/bin/env npx tache
 
-const { sh, lazyRequire, log } = require('@tache/runtime')
+const { load, log } = require('tache')
 
-exports.npmInstall = sh`
-npm install
-`
+// exports.npmInstall = sh`
+// npm install
+// `
 
-exports.bowerInstall = sh`
-bower install
-`
+// exports.bowerInstall = sh`
+// bower install
+// `
 
 exports.clean = async () => {
-	const del = await lazyRequire('del')
+	const del = await load('del')
 	await del('../node_modules')
 }
 
