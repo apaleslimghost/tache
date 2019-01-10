@@ -1,6 +1,6 @@
-#!/usr/bin/env node ../packages/cli/bin
+#!/usr/bin/env npx @tache/cli
 
-const { sh, lazyRequire } = require('@tache/runtime')
+const { sh, lazyRequire, log } = require('@tache/runtime')
 
 exports.npmInstall = sh`
 npm install
@@ -19,4 +19,8 @@ exports.install = async () => {
 	await exports.clean()
 	await exports.npmInstall()
 	await exports.bowerInstall()
+}
+
+exports.foo = () => {
+	log.log('foo')
 }

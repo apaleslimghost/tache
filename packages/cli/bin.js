@@ -9,7 +9,7 @@ const path = require('path')
 const {default: ErrorSubclass} = require('error-subclass')
 
 // error class for internal, informational exceptions that don't log stack trace
-class EpoxyError extends ErrorSubclass {
+class TacheError extends ErrorSubclass {
 	constructor(message, {status = 1, info} = {}) {
 		super(message)
 		this.status = status
@@ -19,7 +19,7 @@ class EpoxyError extends ErrorSubclass {
 
 const [entry, ...args] = process.argv.slice(2)
 
-// resolve requires to the epoxy runtime to the same installation as this bin
+// resolve requires to the runtime to the same installation as this bin
 const tasks = proxyquire(
 	path.resolve(entry),
 	{ '@tache/runtime': require('@tache/runtime') }
@@ -81,7 +81,7 @@ parsedArgs.reduce(
 				Object.keys(tasks).map(formatTask).map(t => `  ${t}`)
 			).join('\n')
 	
-			throw new EpoxyError(`no task ${formatTask(task)}`, {
+			throw new TacheError(`no task ${formatTask(task)}`, {
 				status: 2,
 				info
 			})
@@ -94,7 +94,7 @@ parsedArgs.reduce(
 	Promise.resolve()
 ).catch(
 	error => {
-		if(error instanceof EpoxyError) {
+		if(error instanceof TacheError) {
 			log.failed(error.message)
 			if(error.info) log.errorLine(error.info)
 		} else {

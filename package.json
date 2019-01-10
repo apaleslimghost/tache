@@ -13,12 +13,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/quarterto/epoxy.git"
+    "url": "git+https://github.com/quarterto/tache.git"
   },
   "author": "matt brennan <matt@153.io>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/quarterto/epoxy/issues"
+    "url": "https://github.com/quarterto/tache/issues"
   },
-  "homepage": "https://github.com/quarterto/epoxy#readme"
+  "homepage": "https://github.com/quarterto/tache#readme"
 }
