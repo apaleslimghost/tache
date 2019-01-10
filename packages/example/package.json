@@ -10,8 +10,8 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {},
   "dependencies": {
-    "@tache/cli": "file:../cli"
+    "@tache/runtime": "file:../runtime",
+    "tache": "file:../cli"
   }
 }

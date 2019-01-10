@@ -1,4 +1,4 @@
-#!/usr/bin/env npx @tache/cli
+#!/usr/bin/env npx tache
 
 const { sh, lazyRequire, log } = require('@tache/runtime')
 
