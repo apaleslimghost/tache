@@ -4,9 +4,9 @@ const hjson = require('hjson')
 const proxyquire = require('proxyquire').noCallThru()
 const log = require('@tache/logger')
 const chalk = require('chalk')
-const util = require('util')
 const path = require('path')
 const {default: ErrorSubclass} = require('error-subclass')
+const wrapTask = require('./wrap')
 
 // error class for internal, informational exceptions that don't log stack trace
 class TacheError extends ErrorSubclass {
@@ -38,30 +38,7 @@ if(parsedArgs.length === 0) {
 
 const formatTask = t => chalk.cyan.italic(t)
 
-// wrap all exported task with logging and error handling
-const wrapTask = (name, task) => async (...args) => {
-	try {
-		const start = Date.now()
-		log.command(`${formatTask(name)}${chalk.grey(util.inspect(args).replace(/^\[ ?/, '(').replace(/ ?\]$/, ')'))}`)
-
-		// actually run the task. if the task itself is a promise, wait for it, because it's a lazy boi
-		const taskFunction = await task
-		const result = await taskFunction(...args)
-
-		const took = Date.now() - start
-		log.done(`${formatTask(name)}${took > 20 ? ` (${chalk.italic[took > 500 ? 'red' : 'yellow'](`${took}ms`)})` : ''}`)
-
-		return result
-	} catch(error) {
-		log.failed(formatTask(name))
-
-		// save the task this was originally thrown from for logging/debugging purposes
-		if(!error.task) error.task = name
-		throw error
-	}
-}
-
-// wrap exported tasks in logging helpers
+// wrap all exported tasks with logging and error handling
 Object.keys(tasks).forEach(name => {
 	tasks[name] = wrapTask(name, tasks[name])
 })
