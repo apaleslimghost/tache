@@ -66,7 +66,39 @@ Object.keys(tasks).forEach(name => {
 	tasks[name] = wrapTask(name, tasks[name])
 })
 
-const start = Date.now()
+const logError = error => {
+	if(error instanceof TacheError) {
+		log.failed(error.message)
+		if(error.info) log.errorLine(error.info)
+	} else {
+		log.error(
+			error.toString()
+				.replace(':', (error.task ? chalk.grey(` (from task ${formatTask(error.task)})`) : '') + ':')
+		)
+
+		if(error.stack && error.stack !== error.toString()) {
+			log.errorLine(
+				error.stack.replace(error.toString() + '\n', '')
+			)
+		}
+	}
+
+	process.exitCode = error.status || process.exitCode || 1
+}
+
+const unhandledRejections = new Map();
+
+process.on('unhandledRejection', (reason, promise) => {
+	unhandledRejections.set(promise, reason)
+})
+
+process.on('rejectionHandled', promise => {
+	unhandledRejections.delete(promise)
+})
+
+process.on('beforeExit', () => {
+	unhandledRejections.forEach(logError)
+})
 
 parsedArgs.reduce(
 	async (last, { task, options }) => {
@@ -92,24 +124,4 @@ parsedArgs.reduce(
 		return tasks[task](options)
 	},
 	Promise.resolve()
-).catch(
-	error => {
-		if(error instanceof TacheError) {
-			log.failed(error.message)
-			if(error.info) log.errorLine(error.info)
-		} else {
-			log.error(
-				error.toString()
-					.replace(':', chalk.grey(` (from task ${formatTask(error.task)})`) + ':')
-			)
-
-			if(error.stack && error.stack !== error.toString()) {
-				log.errorLine(
-					error.stack.replace(error.toString() + '\n', '')
-				)
-			}
-		}
-
-		process.exitCode = error.status || 1;
-	}
-)
+).catch(logError)

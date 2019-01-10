@@ -1,14 +1,15 @@
 #!/usr/bin/env npx tache
 
 const { load, log } = require('tache')
+const sh = load('@tache/sh')
 
-// exports.npmInstall = sh`
-// npm install
-// `
+exports.npmInstall = sh.then(sh => sh`
+npm install
+`)
 
-// exports.bowerInstall = sh`
-// bower install
-// `
+exports.bowerInstall = sh.then(sh => sh`
+bower install
+`)
 
 exports.clean = async () => {
 	const del = await load('del')
