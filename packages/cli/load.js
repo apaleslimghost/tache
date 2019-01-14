@@ -2,7 +2,7 @@ const npr = require('@quarterto/npr')
 const log = require('@tache/logger')
 const wrapTask = require('./wrap')
 
-module.exports = mod => {
+const loadAndWrap = wrap => mod => {
 	let loaded
 	const maybeLoad = async () => {
 		if(!loaded) {
@@ -17,7 +17,7 @@ module.exports = mod => {
 				return loaded[prop]
 			}
 
-			return wrapTask(prop, async (...args) => {
+			return wrap(prop, async (...args) => {
 				await maybeLoad()
 				return loaded[prop](...args)
 			})
@@ -25,7 +25,12 @@ module.exports = mod => {
 
 		async apply(target, self, args) {
 			await maybeLoad()
-			return wrapTask(mod, () => loaded.apply(self, args))()
+			return wrap(mod, () => loaded.apply(self, args))()
 		}
 	})
 }
+
+
+module.exports = loadAndWrap(task => task)
+module.exports.tasks = loadAndWrap(wrapTask)
+module.exports.wrapped = loadAndWrap
