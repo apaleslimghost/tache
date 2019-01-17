@@ -79,9 +79,48 @@ the task now outputs:
  done    ✓ helloWorld
 ```
 
+the logger includes a few different styles. see [@tache/logger](packages/logger) for what's available
+
+### command line argument parsing
+
+each whitespace-separated argument passed to _tâche_ on the command line is a separate task. the part before the first colon in the argument (or the whole argument if there's no colon) is the name of the task to run, then the rest of the argument after the first colon is parsed as  [HJSON](https://hjson.org) (a format similar to JSON but with a more lightweight syntax; in practice, this means you can omit most `{}` curly braces and `""` double quotes), and passed as the single argument to the task function. if the task argument needs whitespace, surround the whole thing with double quotes, which are parsed by your shell as a single argument.
+
+adding an argument to the `helloWorld` task, with a default value, to show this (note that the task logging outputs the arguments the task was called with, to help debugging):
+
+```js
+const { log } = require('tache')
+
+exports.helloWorld = function({ message = 'world' }) {
+	log.log(`hello ${message}`)
+}
+```
+```
+⟩ ./tachefile.js helloWorld
+
+ start   │ helloWorld({})
+         │ hello world
+ done    ✓ helloWorld
+
+⟩ ./tachefile.js helloWorld:message:folks
+
+ start   │ helloWorld({ message: 'folks' })
+         │ hello folks
+ done    ✓ helloWorld
+
+⟩ ./tachefile.js "helloWorld:message:'stuff and things'" helloWorld:message:again
+
+ start   │ helloWorld({ message: 'stuff and things' })
+         │ hello stuff and things
+ done    ✓ helloWorld
+
+ start   │ helloWorld({ message: 'again' })
+         │ hello again
+ done    ✓ helloWorld
+```
+
 ### `async` tasks
 
-if your task function returns a `Promise`, e.g. if the function is an `async` function, _tâche_ will wait for the task to complete before exiting, and log timing if it took more than 20 milliseconds:
+if your task function returns a `Promise`, e.g. if the function is an `async` function, _tâche_ will wait for the task to complete before running the next task, and log timing if it took more than 20 milliseconds:
 
 ```js
 const { log } = require('tache')
@@ -93,11 +132,19 @@ exports.helloWorld = async function() {
 	log.log('two')
 }
 ```
+
+running this task twice from the command line will give:
+
 ```
  start   │ helloWorld({})
          │ one
          │ two
  done    ✓ helloWorld (506ms)
+
+ start   │ helloWorld({})
+         │ one
+         │ two
+ done    ✓ helloWorld (504ms)
 ```
 
 ### error handling
@@ -109,7 +156,6 @@ exports.helloWorld = function() {
 	throw new Error('something went wrong')
 }
 ```
-
 ```
  start   │ helloWorld({})
  failed  ✕ helloWorld
