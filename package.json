@@ -6,10 +6,13 @@
     "example": "example"
   },
   "devDependencies": {
-    "@financial-times/athloi": "^1.0.0-beta.16"
+    "@financial-times/athloi": "^1.0.0-beta.16",
+    "jest": "^23.6.0",
+    "memfs": "^2.14.2"
   },
   "scripts": {
-    "postinstall": "athloi exec npm install"
+    "postinstall": "athloi exec npm install",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
