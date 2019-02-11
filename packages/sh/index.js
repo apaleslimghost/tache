@@ -38,31 +38,35 @@ const exec = (cmd, { log, shell, shellArgs, env }) => new Promise((resolve, reje
 	})
 })
 
+const expandVar = (interpoland, args) => (
+	  typeof interpoland === 'function'?  expandVar(interpoland(...args), args)
+	: typeof interpoland === 'undefined'? ''
+	: Array.isArray(interpoland)?         interpoland.join(' ')
+	: /* otherwise *********************/ interpoland
+)
+
 const stringToCommands = (strings, vars, args) => strings.reduce(
-	(commands, part, i) => {
+	async (commandsPromise, part, i) => {
+		let commands = await commandsPromise
 		let lastCommand = commands.pop() || ''
 
 		if(part.includes('\n')) {
-			const [first, ...rest] = part.split('\n').map(line => line.trimLeft())
+			const [first, ...rest] = part.split('\n').map(
+				(line, index) => index > 0 ? line.trimLeft() : line
+			)
+
 			commands = commands.concat(lastCommand + first).concat(rest)
 			lastCommand = commands.pop()
 		} else {
 			lastCommand += part
 		}
 
-		const interpoland = vars[i]
-
-		const interpolated =
-			typeof interpoland === 'function'?  interpoland(...args)
-		: typeof interpoland === 'undefined'? ''
-		: /* otherwise *********************/ interpoland
-
-		lastCommand += interpolated
+		lastCommand += await expandVar(await vars[i], args)
 		
 		return [...commands, lastCommand]
 	},
-	[]
-).filter(a => a)
+	Promise.resolve([])
+).then(commands => commands.filter(a => a))
 
 const defaultOptions = {
 	log,
@@ -71,8 +75,10 @@ const defaultOptions = {
 	env: process.env
 }
 
-const configure = options => (strings, ...vars) => (...args) => (
-	stringToCommands(strings, vars, args).reduce(
+const configure = options => (strings, ...vars) => async(...args) => (
+	(
+		await stringToCommands(strings, vars, args)
+	).reduce(
 		(last, command) => last.then(
 			output => exec(command, options).then(
 				stdout => output.concat(stdout)
@@ -84,3 +90,4 @@ const configure = options => (strings, ...vars) => (...args) => (
 
 module.exports = configure(defaultOptions)
 module.exports.configure = options => configure(Object.assign({}, defaultOptions, options))
+module.exports.env = env => module.exports.configure({env: Object.assign({}, process.env, env)})
