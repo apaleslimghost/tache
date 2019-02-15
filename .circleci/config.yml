@@ -112,7 +112,7 @@ workflows:
           requires:
             - build
 
-  build-test-publish-deploy:
+  build-test-publish:
     jobs:
       - build:
           filters:
