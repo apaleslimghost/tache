@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "@financial-times/athloi": "^1.0.0-beta.16",
-    "jest": "^23.6.0",
+    "jest": "^29.3.1",
     "memfs": "^2.14.2"
   },
   "scripts": {
